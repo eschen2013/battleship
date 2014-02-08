@@ -16,7 +16,7 @@ class DonBotPlayer
   end
 
   def take_turn(state, ships_remaining)
-    [rand(10),rand(10)]
+    fire_at_random_unknown(state)
   end
 
   private
@@ -33,6 +33,16 @@ class DonBotPlayer
     board = Battleship::Board.new(10,ships,passed_board)
     ep = board.send("expand_positions",passed_board)
     board_is_valid = board.send("valid_layout?",ep)
+  end
+
+  def fire_at_random_unknown(state)
+    unknowns = []
+    state.each_with_index { |column,xi|
+      column.each_with_index { |value,yi|
+        unknowns << [yi,xi] if value == :unknown
+      }
+    }
+    unknowns[rand(unknowns.size)]
   end
 end
 
