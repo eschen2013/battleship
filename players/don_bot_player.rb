@@ -18,10 +18,23 @@ class DonBotPlayer
 
   def take_turn(state, ships_remaining)
     @state = state
-    potentials = get_potentials
-    fire_at_random(
-      potentials.any? ? potentials : get_types(:unknown)
-    )
+    @potentials = get_potentials
+    @ships_remaining = ships_remaining
+    if @potentials.any?
+      vectors = @potentials.select { |p| potential_type(p) == :vector }
+      if vectors.any?
+        smart_targets = vectors.select { |v| follow_vector(v) }
+        if smart_targets.any?
+          smart_targets.first
+        else
+          fire_at_random(@potentials)
+        end
+      else
+        fire_at_random(@potentials)
+      end
+    else
+      fire_at_random(get_types(:unknown))
+    end
   end
 
   private
@@ -57,17 +70,31 @@ class DonBotPlayer
   def get_potentials
     potentials_to_return = []
     get_types(:hit).each { |hit|
-      unknown_adjacents(hit[0],hit[1]).each { |adjacent|
+      adjacents_by_type(adjacents(hit[0],hit[1]),:unknown).each { |adjacent|
         potentials_to_return << adjacent
       }
     }
     potentials_to_return.uniq
   end
 
-  def unknown_adjacents(y,x)
-    adjacents = [[y-1,x],[y+1,x],[y,x+1],[y,x-1]]
-    adjacents.reject! { |a| a[0] < 0 || a[1] < 0 || a[0] >= @board_size || a[1] >= @board_size }
-    adjacents.select { |a| @state[a[1]][a[0]] == :unknown }
+  def adjacents_by_type(adjacents_array,type)
+    adjacents_array.select { |a| @state[a[1]][a[0]] == type }
+  end
+
+  def adjacents(y,x)
+    [[y-1,x],[y+1,x],[y,x+1],[y,x-1]].reject { |a| a[1] < 0 || a[0] < 0 || a[1] >= @board_size || a[0] >= @board_size }
+  end
+
+  def potential_type(potential)
+    potential_adjacents = adjacents(potential[0],potential[1])
+    if adjacents_by_type(potential_adjacents,:hit).any?
+      :vector
+    else
+      :lone_hit
+    end
+  end
+
+  def follow_vector(vector)
   end
 end
 
