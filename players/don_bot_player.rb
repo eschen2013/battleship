@@ -1,4 +1,5 @@
 require 'battleship/board'
+require 'awesome_print'
 
 class DonBotPlayer
   def name
@@ -6,6 +7,7 @@ class DonBotPlayer
   end
 
   def new_game
+    @log = File.new('log.txt','w')
     @board_size = 10
     board_is_valid = false
     ships = [5, 4, 3, 3, 2]
@@ -21,16 +23,21 @@ class DonBotPlayer
     @potentials = get_potentials
     @ships_remaining = ships_remaining
     if @potentials.any?
-      vectors = @potentials.select { |p| potential_type(p) == :vector }
+      vectors   = @potentials.select { |p| p[:type] == :vector }
+      lone_hits = @potentials.select { |p| p[:type] == :lone_hit }
       if vectors.any?
         smart_targets = vectors.select { |v| follow_vector(v) }
         if smart_targets.any?
           smart_targets.first
+        elsif lone_hits.any?
+          fire_at_random(lone_hits.map{|lh| lh[:adjacent]})
         else
-          fire_at_random(@potentials)
+          fire_at_random(get_types(:unknown))
         end
+      elsif lone_hits.any?
+        fire_at_random(lone_hits.map{|lh| lh[:adjacent]})
       else
-        fire_at_random(@potentials)
+        fire_at_random(get_types(:unknown))
       end
     else
       fire_at_random(get_types(:unknown))
@@ -70,9 +77,22 @@ class DonBotPlayer
   def get_potentials
     potentials_to_return = []
     get_types(:hit).each { |hit|
-      adjacents_by_type(adjacents(hit[0],hit[1]),:unknown).each { |adjacent|
-        potentials_to_return << adjacent
+      this_hit_potentials = []
+      all_adjacents = adjacents(hit[0],hit[1])
+      hits       = adjacents_by_type(all_adjacents,:hit)
+      unknowns   = adjacents_by_type(all_adjacents,:unknown)
+      vector_found = false
+      unknowns.each { |adjacent|
+        if hits.include?(reciprocal_adjacent(hit,adjacent))
+          type = :vector
+          vector_found = true
+        end
+        this_hit_potentials << { :adjacent => adjacent, :type => type }
       }
+      if vector_found == false
+        this_hit_potentials.each { |thp| thp[:type] = :lone_hit }
+      end
+      this_hit_potentials.each { |thp| potentials_to_return << thp }
     }
     potentials_to_return.uniq
   end
@@ -85,16 +105,17 @@ class DonBotPlayer
     [[y-1,x],[y+1,x],[y,x+1],[y,x-1]].reject { |a| a[1] < 0 || a[0] < 0 || a[1] >= @board_size || a[0] >= @board_size }
   end
 
-  def potential_type(potential)
-    potential_adjacents = adjacents(potential[0],potential[1])
-    if adjacents_by_type(potential_adjacents,:hit).any?
-      :vector
-    else
-      :lone_hit
-    end
+  def follow_vector(vector)
   end
 
-  def follow_vector(vector)
+  def reciprocal_adjacent(hit,adjacent)
+    # Return the adjacent on the opposite side of the hit
+    if adjacent[0] != hit[0]
+      ra = [ (adjacent[0] > hit[0] ? hit[0] - 1 : hit[0] + 1), adjacent[1] ]
+    else
+      ra = [ adjacent[0], (adjacent[1] > hit[1] ? hit[1] - 1 : hit[1] + 1) ]
+    end
+    ra
   end
 end
 
