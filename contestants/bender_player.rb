@@ -11,21 +11,23 @@ class BenderPlayer
   end
 
   def new_game
-    # return an array of 5 arrays containing
-    # [x,y, length, orientation]
-    # e.g.
     @mode = :seek #, :target, :destroy
     @available = all_coords
     @history = []
     @ships = [5, 4, 3, 3, 2]
     @sank = []
-    [
-      [0, 0, 5, :down],
-      [4, 4, 4, :across],
-      [9, 3, 3, :down],
-      [2, 2, 3, :across],
-      [9, 7, 2, :down]
-    ]
+    place_ships
+  end
+
+  def take_turn(state, ships_remaining)
+    # log "start turn"
+    @state = state
+    handle_sinking_ships(ships_remaining)
+    run_scores
+    coord = seek
+    @history << @available.delete(coord)
+    # log "end turn #{coord.inspect} #{@scores[coord]}"
+    coord
   end
 
   def all_coords
@@ -38,67 +40,58 @@ class BenderPlayer
     coords
   end
 
-  def lines
-    hits = self.hits.sort
-    lines = []
-    hits.each do |coord|
-      unless hits.member?( west_of(coord) )
-        east = east_of(coord)
-        across = nil
-        while hits.member?(east)
-          across ||= coord + [1, :across]
-          across[2] += 1
-          east = east_of(east)
-        end
-        lines << across if across
-      end
-
-      unless hits.member?( north_of(coord) )
-        south = south_of(coord)
-        down = nil
-        while hits.member?(south)
-          down ||= coord + [1, :down]
-          down[2] += 1
-          south = south_of(south)
-        end
-        lines << down if down
+  def place_ships
+    placements = []
+    @ships.each do |size|
+      placed_coords = ship_coords(*placements)
+      placements << random_shipper(size).detect do |ship|
+        ship_coords(ship).none?{ |c| placed_coords.member? c }
       end
     end
-    log "lines: #{lines.inspect}"
-    lines.uniq
+    log "placements: #{placements.inspect}"
+    placements
+  end
+
+  def random_ship(size)
+    max = 10 - (size - 1)
+    if rand(2) == 0
+      [rand(max), rand(10), size, :across]
+    else
+      [rand(10), rand(max), size, :down]
+    end
+  end
+
+  def random_shipper(size)
+    Enumerator.new do |y|
+      loop do
+        y << random_ship(size)
+      end
+    end
   end
 
   def hits
     hits = by_status(:hit) - sank_coords
-    log "hits: #{hits.inspect}"
+    # log "hits: #{hits.inspect}"
     hits
   end
 
   def sank_coords
-    coords = []
-    @sank.each{ |ship| coords += ship_coords(ship) }
-    log "sank coords: #{coords.inspect}"
+    coords = ship_coords(*@sank)
+    # log "sank coords: #{coords.inspect}"
     coords
   end
 
-  def ship_coords(ship)
-    case ship[3]
-    when :across
-      ship[2].times.map {|x| [ship[0] + x, ship[1]] }
-    when :down
-      ship[2].times.map {|y| [ship[0], ship[1] + y] }
+  def ship_coords(*ships)
+    coords = []
+    ships.each do |ship|
+      coords += case ship[3]
+                when :across
+                  ship[2].times.map {|x| [ship[0] + x, ship[1]] }
+                when :down
+                  ship[2].times.map {|y| [ship[0], ship[1] + y] }
+                end
     end
-  end
-
-  def take_turn(state, ships_remaining)
-    log "start turn"
-    @state = state
-    handle_sinking_ships(ships_remaining)
-    run_scores
-    coord = seek
-    @history << @available.delete(coord)
-    log "end turn #{coord.inspect} #{@scores[coord]}"
-    coord
+    coords
   end
 
   def handle_sinking_ships(remaining)
@@ -109,7 +102,7 @@ class BenderPlayer
         ship_coords(line).member?(last) &&
         line[2] == sank # same length
       end
-      log "sank #{sank}, possible matches: #{possible_ships.inspect}"
+      # log "sank #{sank}, possible matches: #{possible_ships.inspect}"
       @sank << possible_ships.first if possible_ships.one?
     end
     @ships = remaining
@@ -120,6 +113,10 @@ class BenderPlayer
     score_miss_neighbors
     score_hit_neighbors
     score_line_endings
+  end
+
+  def init_scores
+    @scores = Hash.new(0)
   end
 
   def score_miss_neighbors
@@ -140,25 +137,6 @@ class BenderPlayer
         add_score(coord, 10) if line[2] < @ships.max
       end
     end
-  end
-
-  def line_extensions(line)
-    coords = []
-    x, y = line.first(2)
-    a, b = nil, nil
-    case line[3]
-    when :across
-      a = west_of([x, y])
-      b = [x + line[2], y]
-    when :down
-      a = north_of([x, y])
-      b = [x, y + line[2]]
-    end
-    [a, b].select{|c| @available.member?(c) }
-  end
-
-  def init_scores
-    @scores = Hash.new(0)
   end
 
   def add_score(coord, score)
@@ -207,4 +185,48 @@ class BenderPlayer
     @log.info msg
   end
 
+  def line_extensions(line)
+    coords = []
+    x, y = line.first(2)
+    a, b = nil, nil
+    case line[3]
+    when :across
+      a = west_of([x, y])
+      b = [x + line[2], y]
+    when :down
+      a = north_of([x, y])
+      b = [x, y + line[2]]
+    end
+    [a, b].select{|c| @available.member?(c) }
+  end
+
+  def lines
+    hits = self.hits.sort
+    lines = []
+    hits.each do |coord|
+      unless hits.member?( west_of(coord) )
+        east = east_of(coord)
+        across = nil
+        while hits.member?(east)
+          across ||= coord + [1, :across]
+          across[2] += 1
+          east = east_of(east)
+        end
+        lines << across if across
+      end
+
+      unless hits.member?( north_of(coord) )
+        south = south_of(coord)
+        down = nil
+        while hits.member?(south)
+          down ||= coord + [1, :down]
+          down[2] += 1
+          south = south_of(south)
+        end
+        lines << down if down
+      end
+    end
+    # log "lines: #{lines.inspect}"
+    lines.uniq
+  end
 end
