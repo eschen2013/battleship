@@ -136,7 +136,9 @@ class BenderPlayer
 
   def score_line_endings
     lines.each do |line|
-      line_extensions(line).each{ |coord| add_score(coord, 10) }
+      line_extensions(line).each do |coord|
+        add_score(coord, 10) if line[2] < @ships.max
+      end
     end
   end
 
