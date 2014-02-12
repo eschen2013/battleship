@@ -26,51 +26,33 @@ class BenderPlayer
   end
 
   def take_turn(state, ships_remaining)
-    log "taking turn (mode: #{@mode})"
     @state = state
-    @sunk = @ships - ships_remaining
-    check_last_move(state) if @history.any?
-    coord = send(@mode)
-    while @history.member?(coord)
-      coord = seek
-    end
-    @history << coord
-    @ships = ships_remaining
-    log "attempt (mode: #{@mode}): #{coord.inspect}"
-    coord
+    weighted.first
   end
 
-  def seek
-    [rand(10), rand(10)]
-  end
-
-  def target
-    hit, attempts = nil, []
-    @history.reverse_each do |coord|
-      result = at(coord)
-      if result == :hit
-        hit = coord
-        break
+  def available
+    available = []
+    @state.each_with_index do |row, y|
+      row.each_with_index do |state, x|
+        available << [x, y] if state == :unknown
       end
-      attempts << coord
     end
-    possible = neighbors(hit) - attempts
-    possible.sample
+    available
   end
 
-  def destroy
-    if at(@history.last) == :miss
-      @mode = :seek
-      return seek
+  def weighted
+    available.sort_by do |coord|
+      score = 0
+      neighbors(coord).each do |neighbor|
+        case at(neighbor)
+        when :miss
+          score -= 1
+        when :hit
+          score += 2
+        end
+      end
+      score * -1
     end
-    a, b = @history.last(2)
-    c = b.dup
-    if a[0] == b[0] # x (h) stable, y (v) movement
-      c[1] += b[1] - a[1]
-    else # x (h) movement
-      c[0] += b[0] - a[0]
-    end
-    valid?(c) ? c : seek
   end
 
   def neighbors(coord)
@@ -81,26 +63,8 @@ class BenderPlayer
     [n, e, s, w].select{|c| valid?(c) }
   end
 
-  def check_last_move(state)
-    if at(@history.last) == :hit
-      @mode = case @mode
-              when :seek
-                :target
-              when :target
-                :destroy
-              else
-                :destroy
-              end
-    end
-    @mode = :seek if ship_sank?
-  end
-
   def at(coord)
     @state[ coord[1] ][ coord[0] ]
-  end
-
-  def ship_sank?
-    @sunk.any?
   end
 
   def valid?(coord)
