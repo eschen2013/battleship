@@ -91,11 +91,13 @@ class BenderPlayer
   end
 
   def take_turn(state, ships_remaining)
+    log "start turn"
     @state = state
     handle_sinking_ships(ships_remaining)
     run_scores
     coord = seek
     @history << @available.delete(coord)
+    log "end turn #{coord.inspect} #{@scores[coord]}"
     coord
   end
 
@@ -188,7 +190,9 @@ class BenderPlayer
   end
 
   def seek
-    @available.sort_by{ |c| @scores[c] * -1 }.first
+    sorted = @available.sort_by{ |c| @scores[c] * -1 }
+    score = @scores[sorted.first]
+    sorted.take_while{ |c| @scores[c] == score }.sample
   end
 
   def north_of(coord)
