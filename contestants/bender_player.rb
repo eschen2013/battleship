@@ -1,17 +1,9 @@
-require 'logger'
-require 'pry'
-
 class BenderPlayer
-  def initialize
-    @log = Logger.new("test.txt")
-  end
-
   def name
     "Bender Bending Rodríguez"
   end
 
   def new_game
-    @mode = :seek #, :target, :destroy
     @available = all_coords
     @history = []
     @ships = [5, 4, 3, 3, 2]
@@ -20,13 +12,11 @@ class BenderPlayer
   end
 
   def take_turn(state, ships_remaining)
-    # log "start turn"
     @state = state
     handle_sinking_ships(ships_remaining)
     run_scores
     coord = seek
     @history << @available.delete(coord)
-    # log "end turn #{coord.inspect} #{@scores[coord]}"
     coord
   end
 
@@ -48,7 +38,6 @@ class BenderPlayer
         ship_coords(ship).none?{ |c| placed_coords.member? c }
       end
     end
-    log "placements: #{placements.inspect}"
     placements
   end
 
@@ -70,15 +59,11 @@ class BenderPlayer
   end
 
   def hits
-    hits = by_status(:hit) - sank_coords
-    # log "hits: #{hits.inspect}"
-    hits
+    by_status(:hit) - sank_coords
   end
 
   def sank_coords
-    coords = ship_coords(*@sank)
-    # log "sank coords: #{coords.inspect}"
-    coords
+    ship_coords(*@sank)
   end
 
   def ship_coords(*ships)
@@ -97,10 +82,12 @@ class BenderPlayer
   def handle_sinking_ships(remaining)
     remaining = remaining.sort
     sank = nil
-    @ships.sort.each_with_index do |size, i|
-      if size != remaining[i]
-        sank = size
-        break
+    if @ships.size != remaining.size
+      @ships.sort.each_with_index do |size, i|
+        if size != remaining[i]
+          sank = size
+          break
+        end
       end
     end
     if sank
@@ -109,7 +96,6 @@ class BenderPlayer
         ship_coords(line).member?(last) &&
         line[2] == sank # same length
       end
-      # log "sank #{sank}, possible matches: #{possible_ships.inspect}"
       @sank << possible_ships.first if possible_ships.one?
     end
     @ships = remaining
@@ -188,10 +174,6 @@ class BenderPlayer
     coord.all?{|i| i >= 0 && i < 10 }
   end
 
-  def log(msg)
-    @log.info msg
-  end
-
   def line_extensions(line)
     coords = []
     x, y = line.first(2)
@@ -233,7 +215,6 @@ class BenderPlayer
         lines << down if down
       end
     end
-    # log "lines: #{lines.inspect}"
     lines.uniq
   end
 end
