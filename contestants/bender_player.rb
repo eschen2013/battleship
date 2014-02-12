@@ -14,6 +14,7 @@ class BenderPlayer
     # [x,y, length, orientation]
     # e.g.
     @mode = :seek #, :target, :destroy
+    @available = build_available
     @history = []
     @ships = [5, 4, 3, 3, 2]
     [
@@ -25,37 +26,85 @@ class BenderPlayer
     ]
   end
 
-  def take_turn(state, ships_remaining)
-    @state = state
-    weighted.first
-  end
-
-  def available
+  def build_available
     available = []
-    @state.each_with_index do |row, y|
-      row.each_with_index do |state, x|
-        available << [x, y] if state == :unknown
+    (0..9).each do |y|
+      (0..9).each do |x|
+        available << [x, y]
       end
     end
     available
   end
 
-  def weighted
-    available.sort_by do |coord|
+  def take_turn(state, ships_remaining)
+    @state = state
+
+    coord = seek
+    @history << @available.delete(coord)
+    coord
+  end
+
+  def build_scores
+    @score_by_coord = {}
+    @coords_by_score = {}
+    @available.each do |coord|
       score = 0
-      neighbors(coord).each do |neighbor|
-        case at(neighbor)
-        when :miss
-          score -= 1
-        when :hit
-          score += 2
-        end
-      end
-      score * -1
+      score += adjacency_score(coord)
+      # score += neighbors_score(coord)
+      @score_by_coord[coord] = score
+      @coords_by_score[score] ||= []
+      @coords_by_score[score] << coord
     end
   end
 
+  def adjacency_score(coord)
+    score = 0
+    adjacent(coord).each do |a|
+      case at(a)
+      when :miss
+        score -= 1
+      when :hit
+        score += 3
+      end
+    end
+    score
+  end
+
+  def neighbors_score(coord)
+    score = 0
+    neighbors(coord).each do |n|
+      case at(n)
+      when :miss
+        score -= 1
+      when :hit
+        score += 0
+      end
+    end
+    score
+  end
+
+  def seek
+    build_scores
+    score = @coords_by_score.keys.max
+    @coords_by_score[score].sample
+  end
+
   def neighbors(coord)
+    x, y = coord
+    n = [y - 2, 0].max
+    e = [x - 2, 0].max
+    s = [y + 2, 9].min
+    w = [x + 2, 9].min
+    neighbors = []
+    (n..s).each do |y|
+      (e..w).each do |x|
+        neighbors << [x, y]
+      end
+    end
+    neighbors
+  end
+
+  def adjacent(coord)
     n = [coord[0],      coord[1] - 1]
     e = [coord[0] + 1,  coord[1]    ]
     s = [coord[0],      coord[1] + 1]
