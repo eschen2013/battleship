@@ -163,32 +163,6 @@ class BenderPlayer
     @scores[coord] += score
   end
 
-  def adjacency_score(coord)
-    score = 0
-    adjacent(coord).each do |a|
-      case at(a)
-      when :miss
-        score -= 1
-      when :hit
-        score += 3
-      end
-    end
-    score
-  end
-
-  def neighbors_score(coord)
-    score = 0
-    neighbors(coord).each do |n|
-      case at(n)
-      when :miss
-        score -= 1
-      when :hit
-        score += 0
-      end
-    end
-    score
-  end
-
   def seek
     sorted = @available.sort_by{ |c| @scores[c] * -1 }
     score = @scores[sorted.first]
@@ -209,21 +183,6 @@ class BenderPlayer
 
   def south_of(coord)
     [ coord[0], coord[1] + 1 ]
-  end
-
-  def neighbors(coord)
-    x, y = coord
-    n = [y - 2, 0].max
-    e = [x - 2, 0].max
-    s = [y + 2, 9].min
-    w = [x + 2, 9].min
-    neighbors = []
-    (n..s).each do |y|
-      (e..w).each do |x|
-        neighbors << [x, y]
-      end
-    end
-    neighbors
   end
 
   def adjacent(c)
