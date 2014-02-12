@@ -75,7 +75,10 @@ class BenderPlayer
   end
 
   def sank_coords
-    @sank.map{|ship| ship_coords(ship) }.flatten
+    coords = []
+    @sank.each{ |ship| coords += ship_coords(ship) }
+    log "sank coords: #{coords.inspect}"
+    coords
   end
 
   def ship_coords(ship)
@@ -89,14 +92,29 @@ class BenderPlayer
 
   def take_turn(state, ships_remaining)
     @state = state
-    init_scores
+    handle_sinking_ships(ships_remaining)
     run_scores
     coord = seek
     @history << @available.delete(coord)
     coord
   end
 
+  def handle_sinking_ships(remaining)
+    sank = (@ships - remaining).first
+    if sank
+      last = @history.last
+      possible_ships = lines.select do |line|
+        ship_coords(line).member?(last) &&
+        line[2] == sank # same length
+      end
+      log "sank #{sank}, possible matches: #{possible_ships.inspect}"
+      @sank << possible_ships.first if possible_ships.one?
+    end
+    @ships = remaining
+  end
+
   def run_scores
+    init_scores
     score_miss_neighbors
     score_hit_neighbors
     score_line_endings
