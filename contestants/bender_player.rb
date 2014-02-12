@@ -95,7 +95,14 @@ class BenderPlayer
   end
 
   def handle_sinking_ships(remaining)
-    sank = (@ships - remaining).first
+    remaining = remaining.sort
+    sank = nil
+    @ships.sort.each_with_index do |size, i|
+      if size != remaining[i]
+        sank = size
+        break
+      end
+    end
     if sank
       last = @history.last
       possible_ships = lines.select do |line|
