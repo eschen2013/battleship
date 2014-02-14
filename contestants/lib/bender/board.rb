@@ -23,6 +23,10 @@ module Bender
       all.select(&:miss?)
     end
 
+    def hits
+      all.select(&:hit?)
+    end
+
     def all
       @coords.values
     end

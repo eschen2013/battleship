@@ -117,7 +117,7 @@ class BenderPlayer
   def run_scores
     init_scores
     score_miss_neighbors
-    score_miss_neighbors2
+    score_refactored
     score_hit_neighbors
     score_line_endings
   end
@@ -126,7 +126,7 @@ class BenderPlayer
     @scores = Hash.new(0)
   end
 
-  def score_miss_neighbors2
+  def score_refactored
     @game.run_scores
   end
 

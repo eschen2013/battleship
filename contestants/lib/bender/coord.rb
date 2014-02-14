@@ -46,13 +46,17 @@ module Bender
       status == :miss
     end
 
+    def hit?
+      status == :hit
+    end
+
     def to_s
       case status
       when :unknown
         score.to_s
       when :miss
         "M"
-      else
+      when :hit
         "X"
       end
     end

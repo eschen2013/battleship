@@ -6,7 +6,8 @@ module Bender
     def initialize
       @board = Board.new(self)
       @strategies = [
-        Strategies::MissPenalty.new(self)
+        Strategies::MissPenalty.new(self),
+        Strategies::HitBonus.new(self)
       ]
       @logger = Logger.new("debug.log")
     end
