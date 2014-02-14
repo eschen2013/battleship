@@ -17,6 +17,7 @@ module Bender
 
     def run_scores
       strategies.each(&:score)
+      log("Board:\n#{board.inspect}")
     end
 
     def log(msg)

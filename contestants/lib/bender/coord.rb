@@ -46,8 +46,15 @@ module Bender
       status == :miss
     end
 
-    def inspect
-      "[#{x},#{y}@#{score}]"
+    def to_s
+      case status
+      when :unknown
+        score.to_s
+      when :miss
+        "M"
+      else
+        "X"
+      end
     end
   end
 end

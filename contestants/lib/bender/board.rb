@@ -26,5 +26,19 @@ module Bender
     def all
       @coords.values
     end
+
+    def inspect
+      cols = (0..9)
+      rows = (0..9)
+      out = [[nil, *cols.map{|x| "(#{x})"}]]
+      rows.each do |y|
+        row = ["(#{y})"]
+        cols.each do |x|
+          row << at(x, y)
+        end
+        out << row
+      end
+      out.map{ |row| row.map{|v| v.to_s.rjust(5) }.join }.join("\n")
+    end
   end
 end
