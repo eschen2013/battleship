@@ -1,4 +1,11 @@
+require "pry"
+require "bender"
+
 class BenderPlayer
+  def initialize
+    # @logger = Logger.new(STDOUT)
+  end
+
   def name
     "Bender Bending Rodríguez"
   end
@@ -8,17 +15,23 @@ class BenderPlayer
     @history = []
     @ships = [5, 4, 3, 3, 2]
     @sank = []
+    @game = Bender::Game.new
     place_ships
   end
 
   def take_turn(state, ships_remaining)
     @state = state
+    @game.update(state)
     handle_sinking_ships(ships_remaining)
     run_scores
     coord = seek
     @history << @available.delete(coord)
     coord
   end
+
+  # def log(msg)
+  #   @logger.info msg
+  # end
 
   def all_coords
     coords = []
@@ -104,12 +117,17 @@ class BenderPlayer
   def run_scores
     init_scores
     score_miss_neighbors
+    score_miss_neighbors2
     score_hit_neighbors
     score_line_endings
   end
 
   def init_scores
     @scores = Hash.new(0)
+  end
+
+  def score_miss_neighbors2
+    @game.run_scores
   end
 
   def score_miss_neighbors
