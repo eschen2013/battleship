@@ -21,7 +21,7 @@ class BenderPlayer
 
   def take_turn(state, ships_remaining)
     @state = state
-    @game.update(state)
+    @game.update(state, ships_remaining)
     handle_sinking_ships(ships_remaining)
     run_scores
     coord = seek

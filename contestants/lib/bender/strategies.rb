@@ -11,6 +11,10 @@ module Bender
         game.board
       end
 
+      def lines
+        game.lines
+      end
+
       def log(msg)
         game.log(msg)
       end

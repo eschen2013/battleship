@@ -50,6 +50,10 @@ module Bender
       status == :hit
     end
 
+    def unknown?
+      status == :unknown
+    end
+
     def to_s
       case status
       when :unknown
