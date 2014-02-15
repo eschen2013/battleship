@@ -6,7 +6,7 @@ class BenderPlayer
   end
 
   def new_game
-    @game = Bender::Game.new
+    @game = Bender::Game.new(strategies)
     @game.placements
   end
 
@@ -14,5 +14,13 @@ class BenderPlayer
     @game.update(state, ships_remaining)
     @game.run_scores
     @game.move
+  end
+
+  def strategies
+    %i{
+      MissPenalty
+      HitBonus
+      LineEndings
+    }
   end
 end

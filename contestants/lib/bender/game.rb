@@ -3,19 +3,15 @@ module Bender
     attr_reader :board, :moves
     attr_accessor :strategies
 
-    def initialize
+    def initialize(strategies)
+      @strategies = strategies
       initial_ships = [5, 4, 3, 3, 2]
       @board = Board.new(self)
-      @moves = []
       @finder = LineFinder.new(self)
       @sinker = ShipSinker.new(self, initial_ships)
       @placer = ShipPlacer.new(self, initial_ships)
-      @strategies = [
-        Strategies::MissPenalty.new(self),
-        Strategies::HitBonus.new(self),
-        Strategies::LineEndings.new(self)
-      ]
       @logger = Logger.new("debug.log")
+      @moves = []
     end
 
     def update(state, ships_remaining)
@@ -26,7 +22,9 @@ module Bender
     end
 
     def run_scores
-      strategies.each(&:score)
+      strategies.each do |name|
+        Strategies.const_get(name).new(self).score
+      end
       log "Board:\n#{board.inspect}"
     end
 
