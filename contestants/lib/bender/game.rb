@@ -4,10 +4,12 @@ module Bender
     attr_accessor :strategies
 
     def initialize
+      initial_ships = [5, 4, 3, 3, 2]
       @board = Board.new(self)
       @moves = []
       @finder = LineFinder.new(self)
-      @sinker = ShipSinker.new(self)
+      @sinker = ShipSinker.new(self, initial_ships)
+      @placer = ShipPlacer.new(self, initial_ships)
       @strategies = [
         Strategies::MissPenalty.new(self),
         Strategies::HitBonus.new(self),
@@ -44,6 +46,10 @@ module Bender
 
     def ships
       @sinker
+    end
+
+    def placements
+      @placements ||= @placer.place.map(&:to_a)
     end
 
     def move

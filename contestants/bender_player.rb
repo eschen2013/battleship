@@ -16,7 +16,9 @@ class BenderPlayer
     @ships = [5, 4, 3, 3, 2]
     @sank = []
     @game = Bender::Game.new
-    place_ships
+    # @game.log "old placements: #{place_ships}"
+    # place_ships
+    @game.placements
   end
 
   def take_turn(state, ships_remaining)

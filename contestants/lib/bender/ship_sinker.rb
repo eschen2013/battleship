@@ -2,8 +2,8 @@ module Bender
   class ShipSinker
     attr_reader :game, :remaining
 
-    def initialize(game)
-      @remaining = [5, 4, 3, 3, 2]
+    def initialize(game, ships)
+      @remaining = ships
       @sunk = []
       @game = game
     end
