@@ -9,6 +9,7 @@ module Bender
 
     def update
       @hits = game.board.hits
+      # game.log "Hits: #{@hits.inspect}"
       build_lines
     end
 
@@ -37,6 +38,7 @@ module Bender
       while hit?(right.right)
         right = right.right
       end
+      # game.log "trace across #{coord.inspect}..#{right.inspect}"
       Ship.across(coord, right)
     end
 

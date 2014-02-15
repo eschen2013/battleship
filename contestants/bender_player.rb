@@ -26,6 +26,7 @@ class BenderPlayer
     run_scores
     coord = seek
     @history << @available.delete(coord)
+    @game.moves << coord
     coord
   end
 

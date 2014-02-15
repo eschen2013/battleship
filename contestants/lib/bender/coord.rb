@@ -62,7 +62,17 @@ module Bender
         "M"
       when :hit
         "X"
+      when :sunk
+        "S"
       end
+    end
+
+    def to_a
+      [x, y]
+    end
+
+    def inspect
+      to_a.inspect
     end
   end
 end

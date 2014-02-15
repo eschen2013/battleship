@@ -23,9 +23,18 @@ module Bender
       (0...length).map{ |i| down ? [x, y + i] : [x + i, y] }
     end
 
+    def member?(coord)
+      points.member?( coord.to_a )
+    end
+
     def to_a
       [x, y, length, down ? :down : :across]
     end
+
+    def inspect
+      to_a.inspect
+    end
+    alias_method :to_s, :inspect
 
     def self.across(left, right)
       self.new(left.x, left.y, (right.x - left.x) + 1, :across)
