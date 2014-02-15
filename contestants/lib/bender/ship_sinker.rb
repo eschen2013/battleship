@@ -9,13 +9,13 @@ module Bender
     end
 
     def update(remaining)
-      sank = find_sank(remaining.sort)
+      sank = find_what_sank(remaining.sort)
       match(sank) if sank
       sink_ships
       @remaining = remaining
     end
 
-    def find_sank(current)
+    def find_what_sank(current)
       sank = nil
       if @remaining.size != current.size
         @remaining.sort.each_with_index do |size, i|

@@ -27,6 +27,10 @@ module Bender
       all.select(&:hit?)
     end
 
+    def available
+      all.select(&:unknown?)
+    end
+
     def all
       @coords.values
     end

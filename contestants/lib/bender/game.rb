@@ -25,7 +25,13 @@ module Bender
 
     def run_scores
       strategies.each(&:score)
-      log("Board:\n#{board.inspect}")
+      log "Board:\n#{board.inspect}"
+    end
+
+    def best_move
+      by_score = board.available.sort_by{ |c| c.score * -1 }
+      top = by_score.first
+      by_score.take_while{ |c| c.score == top.score }.sample
     end
 
     def log(msg)
@@ -40,8 +46,11 @@ module Bender
       @sinker
     end
 
-    def move(coord)
+    def move
+      coord = best_move
       @moves << [coord.x, coord.y]
+      log "Next move: #{coord.inspect}"
+      coord.to_a
     end
 
     def last
