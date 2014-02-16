@@ -27,6 +27,23 @@ module Bender
       points.member?( coord.to_a )
     end
 
+    def ending?(coord)
+      coord.to_a == points.first || coord.to_a == points.last
+    end
+
+    def segment(coord, size)
+      return self if size == length
+      x, y = coord.to_a
+      if down
+        y = points.map(&:last).min
+        y = [(coord.y - size) + 1, y].max
+      else
+        x = points.map(&:first).min
+        x = [(coord.x - size) + 1, x].max
+      end
+      self.class.new(x, y, size, down ? :down : :across)
+    end
+
     def to_a
       [x, y, length, down ? :down : :across]
     end

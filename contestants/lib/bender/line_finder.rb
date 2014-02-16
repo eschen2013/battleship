@@ -1,24 +1,25 @@
 module Bender
   class LineFinder
-    attr_reader :game, :lines
+    attr_reader :game
 
     def initialize(game)
       @game = game
-      @lines = []
     end
 
-    def update
-      @hits = game.board.hits
+    # def update
+      # @hits = game.board.hits
       # game.log "Hits: #{@hits.inspect}"
-      build_lines
-    end
+      # build_lines
+    # end
 
-    def build_lines
-      @lines.clear
+    def lines
+      lines = []
+      @hits = game.board.hits
       @hits.each do |coord|
-        @lines << trace_across(coord) if hit?(coord.right) && !hit?(coord.left)
-        @lines << trace_down(coord)   if hit?(coord.down)  && !hit?(coord.up)
+        lines << trace_across(coord) if hit?(coord.right) && !hit?(coord.left)
+        lines << trace_down(coord)   if hit?(coord.down)  && !hit?(coord.up)
       end
+      lines
     end
 
     def hit?(coord)

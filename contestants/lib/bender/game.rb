@@ -16,16 +16,16 @@ module Bender
 
     def update(state, ships_remaining)
       board.update(state)
-      @finder.update
+      # @finder.update
       @sinker.update(ships_remaining)
-      @finder.update
+      # @finder.update
     end
 
     def run_scores
       strategies.each do |name|
         Strategies.const_get(name).new(self).score
       end
-      log "Board:\n#{board.inspect}"
+      # log "Lines:\n#{lines.inspect}\nBoard:\n#{board.inspect}"
     end
 
     def best_move
@@ -53,7 +53,7 @@ module Bender
     def move
       coord = best_move
       @moves << [coord.x, coord.y]
-      log "Next move: #{coord.inspect}"
+      # log "Next move: #{coord.inspect}"
       coord.to_a
     end
 
