@@ -54,6 +54,10 @@ module Bender
       status == :unknown
     end
 
+    def sunk?
+      status == :sunk
+    end
+
     def to_s
       case status
       when :unknown

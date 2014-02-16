@@ -31,6 +31,10 @@ module Bender
       all.select(&:unknown?)
     end
 
+    def sunk
+      all.select(&:sunk?)
+    end
+
     def all
       @coords.values
     end
