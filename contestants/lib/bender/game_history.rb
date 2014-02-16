@@ -1,3 +1,5 @@
 module Bender
-  GAME_HISTORY = []
+  def self.game_history
+    []
+  end
 end

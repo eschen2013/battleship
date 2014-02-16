@@ -21,8 +21,14 @@ module Bender
       @remaining
     end
 
+    def game_history
+      Bender.game_history || []
+    rescue
+      []
+    end
+
     def all_games
-      (GAME_HISTORY + sample_games).map{ |game| game.map{ |ship| Ship.new(*ship) } }
+      (game_history + sample_games).map{ |game| game.map{ |ship| Ship.new(*ship) } }
     end
 
     def sample_games
