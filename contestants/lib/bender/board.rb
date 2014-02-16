@@ -50,7 +50,7 @@ module Bender
         end
         out << row
       end
-      out.map{ |row| row.map{|v| v.to_s.rjust(5) }.join }.join("\n")
+      out.map{ |row| row.map{|v| v.to_s.rjust(8) }.join }.join("\n")
     end
   end
 end

@@ -1,12 +1,15 @@
 require "bender"
 
 class BenderPlayer
+  def initialize
+    @game = Bender::Game.new(strategies)
+  end
+
   def name
     "Bender Bending Rodríguez"
   end
 
   def new_game
-    @game = Bender::Game.new(strategies)
     @game.placements
   end
 
@@ -21,6 +24,7 @@ class BenderPlayer
       MissPenalty
       HitBonus
       LineEndings
+      HistoryBonus
     }
   end
 end

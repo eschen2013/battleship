@@ -1,24 +1,24 @@
 module Bender
   class Game
-    attr_reader :board, :moves
+    attr_reader :board, :moves, :past
     attr_accessor :strategies
 
     def initialize(strategies)
       @strategies = strategies
+      # @logger = Logger.new("debug.log")
       initial_ships = [5, 4, 3, 3, 2]
       @board = Board.new(self)
       @finder = LineFinder.new(self)
       @sinker = ShipSinker.new(self, initial_ships)
       @placer = ShipPlacer.new(self, initial_ships)
-      @logger = Logger.new("debug.log")
+      @past   = PastGames.new(self)
       @moves = []
     end
 
     def update(state, ships_remaining)
       board.update(state)
-      # @finder.update
+      past.whittle board.hits, board.misses
       @sinker.update(ships_remaining)
-      # @finder.update
     end
 
     def run_scores
