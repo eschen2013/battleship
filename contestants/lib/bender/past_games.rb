@@ -134,6 +134,16 @@ module Bender
         [[0, 4, 5, :across], [9, 5, 4, :down], [6, 2, 3, :down], [0, 6, 3, :across], [2, 7, 2, :down]],
         [[0, 2, 5, :down], [5, 1, 4, :across], [2, 5, 3, :down], [3, 7, 3, :down], [2, 1, 2, :across]],
         [[5, 0, 5, :down], [7, 2, 4, :down], [1, 6, 3, :across], [1, 0, 3, :down], [2, 7, 2, :down]],
+        [[0, 0, 5, :down], [4, 4, 4, :across], [9, 3, 3, :down], [2, 2, 3, :across], [9, 7, 2, :down]],
+        [[0, 0, 5, :across], [7, 0, 4, :down], [0, 2, 3, :down], [2, 5, 3, :down], [8, 8, 2, :down]],
+        [[1, 1, 5, :down], [6, 1, 3, :across], [2, 3, 3, :across], [4, 4, 2, :down], [6, 3, 4, :down]],
+        [[9, 0, 3, :down], [1, 3, 2, :across], [4, 3, 4, :down], [7, 3, 5, :down], [1, 7, 3, :down]],
+        [[1, 0, 4, :across], [9, 0, 3, :down], [6, 4, 2, :down], [1, 5, 5, :down], [3, 7, 3, :across]],
+        [[0, 0, 4, :down], [1, 4, 5, :across], [0, 5, 3, :down], [1, 8, 2, :across], [4, 8, 3, :across]],
+        [[0, 1, 5, :across], [5, 1, 3, :across], [8, 2, 2, :down], [2, 6, 3, :across], [9, 6, 4, :down]],
+        [[3, 0, 3, :across], [0, 1, 2, :across], [8, 1, 5, :down], [1, 5, 4, :down], [3, 8, 3, :across]],
+        [[2, 1, 3, :across], [6, 1, 2, :across], [1, 3, 5, :across], [7, 4, 4, :down], [2, 6, 3, :across]],
+        [[5, 0, 3, :down], [1, 1, 4, :down], [3, 2, 2, :down], [6, 4, 3, :down], [2, 8, 5, :across]]
       ]
     end
   end
