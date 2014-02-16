@@ -7,7 +7,6 @@ class DonBotPlayer
   end
 
   def new_game
-    @log = File.new('log.txt','w')
     @board_size = 10
     board_is_valid = false
     ships = [5, 4, 3, 3, 2]
@@ -25,22 +24,16 @@ class DonBotPlayer
     if @potentials.any?
       vectors   = @potentials.select { |p| p[:type] == :vector }
       lone_hits = @potentials.select { |p| p[:type] == :lone_hit }
-      if vectors.any?
-        smart_targets = vectors.select { |v| follow_vector(v) }
-        if smart_targets.any?
-          smart_targets.first
-        elsif lone_hits.any?
-          fire_at_random(lone_hits.map{|lh| lh[:adjacent]})
-        else
-          fire_at_random(get_types(:unknown))
-        end
+      smart_targets = vectors.map { |v| follow_vector(v[:adjacent],v[:from_hit]) }.reject { |v| v.nil? }
+      if smart_targets.any?
+        smart_targets.first.reject(&:nil?)[0]
       elsif lone_hits.any?
         fire_at_random(lone_hits.map{|lh| lh[:adjacent]})
       else
-        fire_at_random(get_types(:unknown))
+        fire_at_random
       end
     else
-      fire_at_random(get_types(:unknown))
+      fire_at_random
     end
   end
 
@@ -60,7 +53,8 @@ class DonBotPlayer
     board_is_valid = board.send("valid_layout?",ep)
   end
 
-  def fire_at_random(collection)
+  def fire_at_random(collection=nil)
+    collection ||= get_types(:unknown)
     collection[rand(collection.size)]
   end
 
@@ -87,9 +81,9 @@ class DonBotPlayer
           type = :vector
           vector_found = true
         end
-        this_hit_potentials << { :adjacent => adjacent, :type => type }
+        this_hit_potentials << { :adjacent => adjacent, :type => type, :from_hit => hit }
       }
-      if vector_found == false
+      if vector_found == false && hits.empty?
         this_hit_potentials.each { |thp| thp[:type] = :lone_hit }
       end
       this_hit_potentials.each { |thp| potentials_to_return << thp }
@@ -102,20 +96,82 @@ class DonBotPlayer
   end
 
   def adjacents(y,x)
-    [[y-1,x],[y+1,x],[y,x+1],[y,x-1]].reject { |a| a[1] < 0 || a[0] < 0 || a[1] >= @board_size || a[0] >= @board_size }
+    [[y-1,x],[y+1,x],[y,x+1],[y,x-1]].reject { |a| !in_bounds(a) }
   end
 
-  def follow_vector(vector)
+  def follow_vector(vector,from_hit)
+    # A vector is two hits next to each other
+    adjacent_hits = adjacents_by_type(adjacents(vector[0],vector[1]),:hit)
+    directions = get_vector_directions(adjacent_hits,vector)
+    unknowns = grab_unknowns_from_ends(directions,from_hit) || []
+    unknowns if unknowns.any?
+  end
+
+  def get_vector_directions(adjacent_hits,vector)
+    adjacent_hits.map { |hit| (hit[0] == vector[0] ? :column : :row) }
   end
 
   def reciprocal_adjacent(hit,adjacent)
     # Return the adjacent on the opposite side of the hit
     if adjacent[0] != hit[0]
-      ra = [ (adjacent[0] > hit[0] ? hit[0] - 1 : hit[0] + 1), adjacent[1] ]
+      [ (adjacent[0] > hit[0] ? hit[0] - 1 : hit[0] + 1), adjacent[1] ]
     else
-      ra = [ adjacent[0], (adjacent[1] > hit[1] ? hit[1] - 1 : hit[1] + 1) ]
+      [ adjacent[0], (adjacent[1] > hit[1] ? hit[1] - 1 : hit[1] + 1) ]
     end
-    ra
+  end
+
+  def grab_unknowns_from_ends(directions,vector)
+    candidates = []
+    phase_results = []
+    directions.each { |direction|
+      if direction == :column
+        phase_results = [:up,:down].map { |phase| pointer_phase(phase,vector) }
+      else
+        phase_results = [:left,:right].map { |phase| pointer_phase(phase,vector) }
+      end
+      hits_length = phase_results.map { |pr| pr[0] }.inject(:+) - 1
+      if hits_length <= @ships_remaining.sort.last && hits_length > 1
+        # Hitting the ship is only worth it if the length is less than remaining ships
+        candidates << phase_results.reject{ |pr| pr[1].nil? }.map { |pr| pr[1] }[0]
+      end
+    }
+    candidates
+  end
+
+  def pointer_phase(phase,vector)
+    # Follow the hits until you encounter an unknown, then mark it as a candidate
+    pointer = vector.clone
+    hit_count = 0
+
+    previous_pointer = pointer.clone
+    while in_bounds(pointer) && board_state(previous_pointer) == :hit
+      previous_pointer = pointer.clone
+      new_state = board_state(pointer)
+      if new_state == :unknown
+        candidate = pointer.clone
+      else
+        hit_count += 1 unless new_state == :miss
+      end
+      pointer = increment_pointer(pointer,phase)
+    end
+    [hit_count,candidate]
+  end
+
+  def increment_pointer(pointer,phase)
+    pointer[0] += 1 if phase == :right
+    pointer[0] -= 1 if phase == :left
+    pointer[1] += 1 if phase == :down
+    pointer[1] -= 1 if phase == :up
+    pointer
+  end
+
+  def in_bounds(coords)
+    coords[0] >= 0 && coords[1] >= 0 &&
+    coords[0] < @board_size && coords[1] < @board_size
+  end
+
+  def board_state(pointer)
+    @state[pointer[1]][pointer[0]]
   end
 end
 
