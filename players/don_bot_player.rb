@@ -1,5 +1,4 @@
 require 'battleship/board'
-require 'awesome_print'
 
 class DonBotPlayer
   def name
