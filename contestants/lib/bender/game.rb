@@ -9,7 +9,7 @@ module Bender
       @options = options
       @id = SecureRandom.hex(4)
       @moves = []
-      @logger = Logger.new("debug.log")
+      # @logger = Logger.new("debug.log")
       initial_ships = [5, 4, 3, 3, 2]
       @board = Board.new(self)
       @finder = LineFinder.new(self)
