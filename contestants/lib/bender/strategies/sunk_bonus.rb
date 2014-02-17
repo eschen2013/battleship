@@ -3,7 +3,7 @@ module Bender
     class SunkBonus < Base
       def score
         board.sunk.each do |hit|
-          hit.adjacent.each{ |coord| coord.add 1 }
+          hit.adjacent.each{ |coord| coord.add weight }
         end
       end
     end

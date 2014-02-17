@@ -6,7 +6,7 @@ module Bender
         lines.each do |line|
           line.extensions.each do |xy|
             coord = board.at(*xy)
-            coord.add(10) if coord && coord.unknown?
+            coord.add(weight) if coord && coord.unknown?
           end
         end
       end

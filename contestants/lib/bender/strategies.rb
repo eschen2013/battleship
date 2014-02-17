@@ -1,10 +1,11 @@
 module Bender
   module Strategies
     class Base
-      attr_accessor :game
+      attr_accessor :game, :weight
 
-      def initialize(game)
+      def initialize(game, weight)
         self.game = game
+        self.weight = weight
       end
 
       def board

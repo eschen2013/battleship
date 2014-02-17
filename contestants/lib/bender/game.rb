@@ -1,18 +1,22 @@
+require "securerandom"
+
 module Bender
   class Game
-    attr_reader :board, :moves, :past
+    attr_reader :board, :moves, :past, :id, :options
     attr_accessor :strategies
 
-    def initialize(strategies)
-      @strategies = strategies
-      # @logger = Logger.new("debug.log")
+    def initialize(strategies, options = {})
+      @options = options
+      @id = SecureRandom.hex(4)
+      @logger = Logger.new("debug.log")
       initial_ships = [5, 4, 3, 3, 2]
       @board = Board.new(self)
       @finder = LineFinder.new(self)
       @sinker = ShipSinker.new(self, initial_ships)
       @placer = ShipPlacer.new(self, initial_ships)
-      @past   = PastGames.new(self)
+      @past   = PastGames.new(self, @options)
       @moves = []
+      init_strategies strategies
     end
 
     def update(state, ships_remaining)
@@ -22,16 +26,24 @@ module Bender
     end
 
     def run_scores
-      strategies.each do |name|
-        Strategies.const_get(name).new(self).score
+      @strategies.values.each(&:score)
+      if options[:log_board]
+        log "Lines:\n#{lines.inspect}\nBoard:\n#{board.inspect}"
       end
-      # log "Lines:\n#{lines.inspect}\nBoard:\n#{board.inspect}"
     end
 
     def best_move
       by_score = board.available.sort_by{ |c| c.score * -1 }
       top = by_score.first
       by_score.take_while{ |c| c.score == top.score }.sample
+    end
+
+    def init_strategies(strategies)
+      @strategies = {}.tap do |s|
+        strategies.each do |name, weight|
+          s[name] = Strategies.const_get(name).new(self, weight)
+        end
+      end
     end
 
     def log(msg)

@@ -1,14 +1,16 @@
 module Bender
   class PastGames
     attr_reader :game, :remaining, :total
-    def initialize(game)
+    def initialize(game, options)
+      @extended_history = options.fetch(:extended_history, true)
       @game = game
       @remaining = all_games
       @total = @remaining.count
-      @game.log "Loaded #{@remaining.count} past games. Sample: #{@remaining.sample.inspect}"
+      # @game.log "Loaded #{@remaining.count} past games. Sample: #{@remaining.sample.inspect}"
     end
 
     def whittle(hits, misses)
+      return unless game.strategies.key?("HistoryBonus")
       @remaining.select! do |game|
         hits.all? do |coord|
           game.detect{ |ship| ship.member?(coord) }
@@ -28,7 +30,8 @@ module Bender
     end
 
     def all_games
-      (game_history + sample_games).map{ |game| game.map{ |ship| Ship.new(*ship) } }
+      games = @extended_history ? game_history : sample_games
+      games.map{ |game| game.map{ |ship| Ship.new(*ship) } }
     end
 
     def sample_games

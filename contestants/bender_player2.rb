@@ -1,12 +1,12 @@
 require "bender"
 
-class BenderPlayer
+class Bender2Player
   def initialize
-    @game = Bender::Game.new(strategies)
+    @game = Bender::Game.new(strategies, extended_history: false)
   end
 
   def name
-    "Bender Bending Rodríguez"
+    "Bender Bending Rodríguez 2"
   end
 
   def new_game
