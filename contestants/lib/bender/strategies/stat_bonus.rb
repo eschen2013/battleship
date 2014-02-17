@@ -3,16 +3,26 @@ module Bender
     class StatBonus < Base
       def initialize(*a)
         super(*a)
-        @games = Bender.game_history.map do |game|
+        compute_stats
+      end
+
+      def compute_stats
+        @stats = Hash.new(0)
+        games = Bender.game_history.map do |game|
           game.map{ |ship| Ship.new(*ship) }
+        end
+        games.each do |ships|
+          ships.each do |ship|
+            ship.points.each do |xy|
+              @stats[xy] += weight
+            end
+          end
         end
       end
 
       def score
-        @games.each do |ships|
-          ships.each do |ship|
-            ship.points.each{ |x, y| board.at(x, y).add(weight) }
-          end
+        @stats.each_pair do |xy, score|
+          board.at(*xy).add(score)
         end
       end
 
