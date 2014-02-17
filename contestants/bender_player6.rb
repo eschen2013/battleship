@@ -22,10 +22,10 @@ class Bender6Player
   def strategies
     {
       "MissPenalty"   => -100,
-      "HitBonus"      => 300,
+      "HitBonus"      =>  300,
       "LineEndings"   => 1000,
-      "LongLines"     => 100,
-      "StatBonus"     => 1
+      "LongLines"     =>  100,
+      "StatBonus"     =>    1
     }
   end
 end

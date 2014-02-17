@@ -34,8 +34,7 @@ module Bender
 
     def best_move
       by_score = board.available.sort_by{ |c| c.score * -1 }
-      # top = by_score.first.score * 0.95
-      top = by_score.first.score
+      top = by_score.first.score * options.fetch(:top, 1)
       by_score.take_while{ |c| c.score >= top }.sample
     end
 
@@ -60,7 +59,7 @@ module Bender
     end
 
     def placements
-      @placements ||= @placer.place.map(&:to_a)
+      @placer.place.map(&:to_a)
     end
 
     def move
