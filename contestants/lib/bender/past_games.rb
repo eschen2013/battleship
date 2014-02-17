@@ -30,7 +30,7 @@ module Bender
     end
 
     def all_games
-      games = @extended_history ? game_history : sample_games
+      games = @extended_history ? (sample_games + game_history) : sample_games
       games.map{ |game| game.map{ |ship| Ship.new(*ship) } }
     end
 

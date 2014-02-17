@@ -48,7 +48,7 @@ module Bender
     end
 
     def place_ship(size, coord)
-      possible_ships = game.lines.select do |line|
+      possible_ships = game.lines(game.board.hits).select do |line|
         # line.member?(coord) && line.length == size
         line.member?(coord) &&
         ( line.length == size || (line.length > size && line.ending?(coord)) )

@@ -12,10 +12,10 @@ module Bender
       # build_lines
     # end
 
-    def lines
+    def lines(coords)
       lines = []
-      @hits = game.board.hits
-      @hits.each do |coord|
+      @coords = coords
+      @coords.each do |coord|
         lines << trace_across(coord) if hit?(coord.right) && !hit?(coord.left)
         lines << trace_down(coord)   if hit?(coord.down)  && !hit?(coord.up)
       end
@@ -23,7 +23,7 @@ module Bender
     end
 
     def hit?(coord)
-      @hits.member?(coord)
+      @coords.member?(coord)
     end
 
     def trace_down(coord)

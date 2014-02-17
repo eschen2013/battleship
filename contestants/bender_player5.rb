@@ -1,12 +1,12 @@
 require "bender"
 
-class Bender4Player
+class Bender5Player
   def initialize
-    @game = Bender::Game.new(strategies)
+    @game = Bender::Game.new(strategies, disable_stats: 10)
   end
 
   def name
-    "Bender Bending Rodríguez 4"
+    "Bender Bending Rodríguez 5"
   end
 
   def new_game
@@ -24,7 +24,8 @@ class Bender4Player
       "MissPenalty"   => -10,
       "HitBonus"      => 30,
       "LineEndings"   => 100,
-      "StatBonus"     => 1
+      "StatBonus"     => 1,
+      "HistoryBonus"  => 1
     }
   end
 end
