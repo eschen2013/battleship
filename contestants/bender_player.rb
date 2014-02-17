@@ -2,7 +2,7 @@ require "bender"
 
 class BenderPlayer
   def initialize
-    @game = Bender::Game.new(strategies, top: 0.99)
+    @game = Bender::Game.new(strategies)
   end
 
   def name
