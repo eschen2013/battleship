@@ -52,4 +52,26 @@ class MojoPlayerTest < MiniTest::Unit::TestCase
     board = Board.new(10, [5,4,3,3,2], player.new_game)
     assert_equal :hunt, player.next_mode(board.report, board.ships_remaining)
   end
+
+  def test_ships_in_position_return_zero_if_not_unknown
+    player = MojoPlayer.new
+    board = [[:hit, :unknown, :unknown],[:unknown, :unknown, :unknown],[:unknown, :unknown, :unknown]]
+    assert_equal 0, player.ships_in_position([0,0], 2, board)
+  end
+end
+
+class ProbabilityMapTest < MiniTest::Unit::TestCase
+  def setup
+    @probmap = ProbabilityMap.new([[:unknown, :unknown, :unknown],
+                                   [:unknown, :unknown, :unknown],
+                                   [:unknown, :unknown, :unknown]], [3,2])
+  end
+
+  def test_can_have_ship_returns_true
+    assert_equal true, @probmap.can_have_ship([0,0], 3, :down)
+  end
+
+  def test_can_have_ship_returns_false
+    assert_equal false, @probmap.can_have_ship([0,0], 3, :up)
+  end
 end

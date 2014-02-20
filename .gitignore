@@ -1,3 +1,4 @@
 .rvmrc
 vendor/
 .bundle
+players/death_player*
