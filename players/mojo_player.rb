@@ -29,7 +29,7 @@ class MojoPlayer
   end
 
   def position_state(position, state)
-    state[position[0]][position[1]]
+    state[position[1]][position[0]]
   end
 
   def ships_in_position(position, ship, state)
@@ -57,19 +57,19 @@ class ProbabilityMap
   end
 
   def position_state(position)
-    @state[position[0]][position[1]]
+    @state[position[1]][position[0]]
   end
 
   def can_have_ship(position, ship, orientation)
     case orientation
     when :up
-      position[0] - ship >= 0 
+      position[1] - (ship - 1) >= 0
     when :down
-      position[0] + ship - 1 < @state.count
+      position[1] + (ship - 1) < @state.count
     when :left
-      position[1] - ship >= 0
+      position[0] - (ship - 1) >= 0
     when :right
-      position[1] + ship - 1 < @state.count
+      position[0] + (ship - 1) < @state.count
     end
   end
 end

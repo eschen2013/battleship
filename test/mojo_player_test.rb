@@ -29,9 +29,9 @@ class MojoPlayerTest < MiniTest::Unit::TestCase
 
   def test_position_state_returns_hit
     player = MojoPlayer.new
-    board = Board.new(10, [2], [[5,5,2,:down]])
-    board.try([5,5])
-    assert_equal :hit, player.position_state([5,5], board.report)
+    board = Board.new(10, [2], [[5,4,2,:down]])
+    board.try([5,4])
+    assert_equal :hit, player.position_state([5,4], board.report)
   end
 
   def test_position_state_returns_miss
@@ -55,7 +55,9 @@ class MojoPlayerTest < MiniTest::Unit::TestCase
 
   def test_ships_in_position_return_zero_if_not_unknown
     player = MojoPlayer.new
-    board = [[:hit, :unknown, :unknown],[:unknown, :unknown, :unknown],[:unknown, :unknown, :unknown]]
+    board = [[:hit, :unknown, :unknown],
+             [:unknown, :unknown, :unknown],
+             [:unknown, :unknown, :unknown]]
     assert_equal 0, player.ships_in_position([0,0], 2, board)
   end
 end
@@ -67,11 +69,35 @@ class ProbabilityMapTest < MiniTest::Unit::TestCase
                                    [:unknown, :unknown, :unknown]], [3,2])
   end
 
-  def test_can_have_ship_returns_true
-    assert_equal true, @probmap.can_have_ship([0,0], 3, :down)
+  def test_can_have_ship_returns_true_down
+    assert_equal true, @probmap.can_have_ship([1,0], 3, :down)
   end
 
-  def test_can_have_ship_returns_false
-    assert_equal false, @probmap.can_have_ship([0,0], 3, :up)
+  def test_can_have_ship_returns_true_up
+    assert_equal true, @probmap.can_have_ship([1,2], 3, :up)
+  end
+
+  def test_can_have_ship_returns_true_left
+    assert_equal true, @probmap.can_have_ship([2,1], 3, :left)
+  end
+
+  def test_can_have_ship_returns_true_right
+    assert_equal true, @probmap.can_have_ship([0,1], 3, :right)
+  end
+
+  def test_can_have_ship_returns_false_up
+    assert_equal false, @probmap.can_have_ship([1,1], 3, :up)
+  end
+
+  def test_can_have_ship_returns_false_down
+    assert_equal false, @probmap.can_have_ship([1,1], 3, :down)
+  end
+
+  def test_can_have_ship_returns_false_left
+    assert_equal false, @probmap.can_have_ship([1,1], 3, :left)
+  end
+
+  def test_can_have_ship_returns_false_right
+    assert_equal false, @probmap.can_have_ship([1,1], 3, :right)
   end
 end
